@@ -11,7 +11,7 @@ from jobagent.profile import SearchPreferences
 
 PREFS = SearchPreferences(
     target_roles=["Quantity Surveyor", "Billing Engineer", "Estimation Engineer"],
-    locations=["India (any city)"],
+    locations=["India", "United Arab Emirates", "Qatar", "Saudi Arabia", "Oman", "Kuwait", "Bahrain", "United Kingdom"],
     exclude_keywords=["UPVC", "windows and doors", "aluminium fabrication"],
     exclude_title_words=["Senior", "Principal", "Lead"],
 )
@@ -36,6 +36,12 @@ def audit(tmp_path):
     ("Quantity Surveyor", "Fenesta uPVC Windows", "Delhi", "excluded keyword: UPVC"),
     ("Software Engineer", "AECOM", "Pune", "title not a QS role"),
     ("Quantity Surveyor", "JLL", "Singapore", "location: Singapore"),
+    ("Quantity Surveyor", "WSP", "Doha, Doha, Qatar", None),
+    ("Quantity Surveyor", "AECOM", "Dubai, ARE", None),
+    ("Assistant Quantity Surveyor", "KBR", "Riyadh", None),
+    ("Graduate Quantity Surveyor", "United Living", "Swinton, GBR", None),
+    ("Quantity Surveyor", "Turner & Townsend", "Cincinnati, Ohio, United States", "location: Cincinnati, Ohio, United States"),
+    ("Quantity Surveyor", "KBR", "2 Locations", None),
 ])
 def test_relevance(title, company, location, expected):
     assert relevance(Job("x", company, title, location, "https://e/1"), PREFS) == expected

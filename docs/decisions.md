@@ -98,4 +98,10 @@ in `jobagent/sources.json` and can be extended.
 **Filtering:** QS-type titles only; UPVC/aluminium companies excluded;
 titles with Senior, Principal, Lead, Head, Director or Chief are skipped
 (`preferences.exclude_title_words`); location must match the profile
-(currently India). The same job found on several sources is stored once.
+(India, the six Gulf countries and the UK; see D9). The same job found on several sources is stored once.
+
+## D9 — Countries (2026-10-21)
+
+Search covers India, the Gulf (UAE, Qatar, Saudi Arabia, Oman, Kuwait,
+Bahrain) and the United Kingdom. Locations are matched by country name, code
+and main cities. Listings shown only as "N Locations" are kept for review.

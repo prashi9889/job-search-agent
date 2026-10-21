@@ -46,20 +46,37 @@ def relevance(job: Job, prefs: SearchPreferences) -> str | None:
             or any(r.lower() in job.title.lower() for r in prefs.target_roles)):
         return "title not a QS role"
     countries = [l.split("(")[0].strip().lower() for l in prefs.locations]
-    if countries and "anywhere" not in countries and job.location:
-        if not any(c in job.location.lower() for c in countries) and not _in_india(job.location, countries):
+    if countries and "anywhere" not in countries and job.location and not _MULTI.match(job.location):
+        if not any(_in_country(job.location, c) for c in countries):
             return f"location: {job.location}"
     return None
 
 
-_INDIAN_PLACES = re.compile(
-    r"\b(?:ind|india|mumbai|delhi|new delhi|gurgaon|gurugram|noida|bengaluru|bangalore|hyderabad|chennai|"
-    r"pune|kolkata|ahmedabad|kochi|jaipur|lucknow|chandigarh|navi mumbai|thane|coimbatore|visakhapatnam|"
-    r"telangana|maharashtra|karnataka|tamil nadu|haryana|uttar pradesh|gujarat|kerala|west bengal)\b", re.I)
+# Workday shows "2 Locations" when a role is in several places; keep those for review.
+_MULTI = re.compile(r"^\s*\d+\s+locations?\s*$", re.I)
+
+# Country names, codes and main cities as they appear in job listings.
+PLACES = {
+    "india": r"india|\bind\b|mumbai|delhi|gurgaon|gurugram|noida|bengaluru|bangalore|hyderabad|chennai|pune|"
+             r"kolkata|ahmedabad|kochi|jaipur|lucknow|chandigarh|thane|coimbatore|visakhapatnam|telangana|"
+             r"maharashtra|karnataka|tamil nadu|haryana|uttar pradesh|gujarat|kerala|west bengal",
+    "united arab emirates": r"united arab emirates|\buae\b|\bare\b|dubai|abu dhabi|sharjah|ajman|ras al khaimah",
+    "qatar": r"qatar|\bqat\b|doha|lusail",
+    "saudi arabia": r"saudi|\bksa\b|\bsau\b|riyadh|jeddah|dammam|khobar|neom|mecca|makkah|medina",
+    "oman": r"\boman\b|\bomn\b|muscat|sohar|duqm",
+    "kuwait": r"kuwait|\bkwt\b",
+    "bahrain": r"bahrain|\bbhr\b|manama",
+    "united kingdom": r"united kingdom|\buk\b|\bgbr?\b|england|scotland|wales|northern ireland|london|"
+                      r"manchester|birmingham|leeds|bristol|glasgow|edinburgh|liverpool|cardiff|belfast|"
+                      r"newcastle|sheffield|nottingham",
+}
 
 
-def _in_india(location: str, countries: list[str]) -> bool:
-    return "india" in countries and bool(_INDIAN_PLACES.search(location))
+def _in_country(location: str, country: str) -> bool:
+    pattern = PLACES.get(country)
+    if pattern:
+        return re.search(pattern, location, re.I) is not None
+    return country in location.lower()
 
 
 SCHEMA = """
