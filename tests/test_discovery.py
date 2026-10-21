@@ -142,3 +142,15 @@ def test_other_senders_ignored():
 def test_link_sources_fill_query():
     links = {l["name"]: l["url"] for l in link_sources(load_sources())}
     assert links["Jacobs"].endswith("keyword=quantity%20surveyor")
+
+
+def test_anywhere_keeps_all_countries():
+    prefs = SearchPreferences(target_roles=["Quantity Surveyor"], locations=["Anywhere"])
+    assert relevance(Job("x", "T&T", "Quantity Surveyor", "Cincinnati, Ohio, United States", "https://e/1"), prefs) is None
+
+
+def test_gulf_and_uk_alert_senders():
+    body = "Quantity Surveyor\nArabtec\nDubai, UAE\nhttps://www.naukrigulf.com/quantity-surveyor-jobs-in-dubai-uae-jid-123456\n"
+    msg = EmailMessage("g1", "Naukrigulf <alerts@naukrigulf.com>", "Jobs", body, NOW)
+    [job] = alert_jobs(msg, load_sources())
+    assert job.source == "alert:naukrigulf" and job.company == "Arabtec"

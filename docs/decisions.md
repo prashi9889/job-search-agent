@@ -105,3 +105,9 @@ titles with Senior, Principal, Lead, Head, Director or Chief are skipped
 Search covers India, the Gulf (UAE, Qatar, Saudi Arabia, Oman, Kuwait,
 Bahrain) and the United Kingdom. Locations are matched by country name, code
 and main cities. Listings shown only as "N Locations" are kept for review.
+
+## D10 — All countries; Gulf and UK job sites (2026-10-21)
+
+Location filter removed (`preferences.locations = ["Anywhere"]`): jobs in any
+country are kept. NaukriGulf, Bayt, GulfTalent, Reed and Totaljobs alert
+emails are read the same way as the Indian job sites. This supersedes D9.

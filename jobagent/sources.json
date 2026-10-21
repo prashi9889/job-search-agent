@@ -28,12 +28,22 @@
     "naukri": ["naukri.com"],
     "linkedin": ["linkedin.com"],
     "indeed": ["indeed.com", "indeedemail.com"],
-    "foundit": ["foundit.in", "monsterindia.com"]
+    "foundit": ["foundit.in", "monsterindia.com"],
+    "naukrigulf": ["naukrigulf.com"],
+    "bayt": ["bayt.com"],
+    "gulftalent": ["gulftalent.com"],
+    "reed": ["reed.co.uk"],
+    "totaljobs": ["totaljobs.com"]
   },
   "job_url_patterns": {
     "naukri": "https?://(?:www\\.)?naukri\\.com/\\S*job-listings\\S*",
     "linkedin": "https?://(?:[a-z]+\\.)?linkedin\\.com/(?:comm/)?jobs/view/\\d+\\S*",
     "indeed": "https?://(?:[a-z]+\\.)?indeed\\.com/(?:rc/clk|viewjob|pagead/clk)\\S*",
-    "foundit": "https?://(?:www\\.)?(?:foundit\\.in|monsterindia\\.com)/job/\\S*"
+    "foundit": "https?://(?:www\\.)?(?:foundit\\.in|monsterindia\\.com)/job/\\S*",
+    "naukrigulf": "https?://(?:www\\.)?naukrigulf\\.com/\\S*jid-\\S*",
+    "bayt": "https?://(?:www\\.)?bayt\\.com/\\S*/jobs/\\S*-\\d+/?\\S*",
+    "gulftalent": "https?://(?:www\\.)?gulftalent\\.com/\\S*jobs/\\S*-\\d+\\S*",
+    "reed": "https?://(?:www\\.)?reed\\.co\\.uk/jobs/\\S*/\\d+\\S*",
+    "totaljobs": "https?://(?:www\\.)?totaljobs\\.com/job/\\S*"
   }
 }
