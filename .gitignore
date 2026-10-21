@@ -1,0 +1,13 @@
+# Personal data never lives in the repo. The agent stores it under
+# $JOBAGENT_HOME (default ~/.jobagent).
+.jobagent/
+*.xlsx
+*.db
+*.sqlite3
+.env
+
+__pycache__/
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
