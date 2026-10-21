@@ -52,6 +52,8 @@ class SearchPreferences:
     exclude_keywords: list[str] = field(default_factory=list)
     # Titles containing these words are too senior (or otherwise unsuitable).
     exclude_title_words: list[str] = field(default_factory=list)
+    # Skip listings that say they cannot sponsor a work visa.
+    needs_visa_sponsorship: bool = False
 
     @classmethod
     def from_profile(cls, profile: dict) -> "SearchPreferences":
@@ -61,6 +63,7 @@ class SearchPreferences:
             locations=prefs.get("locations", []),
             exclude_keywords=prefs.get("exclude_keywords", []),
             exclude_title_words=prefs.get("exclude_title_words", []),
+            needs_visa_sponsorship=prefs.get("needs_visa_sponsorship", False),
         )
 
     def excluded_by(self, *texts: str) -> str | None:

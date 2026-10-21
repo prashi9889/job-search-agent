@@ -34,11 +34,21 @@ QS_TERMS = re.compile(
     r"commercial (?:manager|executive)|contracts? (?:engineer|administrator)|quantity take", re.I)
 
 
+NO_SPONSORSHIP = re.compile(
+    r"(?:unable|not able|cannot|can't|do not|don't|will not|won't|not) (?:currently )?(?:to )?"
+    r"(?:offer|provide|support)?\s*(?:visa )?sponsor"
+    r"|no (?:visa )?sponsorship|not eligible for sponsorship|without the need for sponsorship"
+    r"|must have (?:the |a )?(?:full |permanent )?right to work"
+    r"|(?:uae|gcc|saudi|qatar) nationals? only|locals? only", re.I)
+
+
 def relevance(job: Job, prefs: SearchPreferences) -> str | None:
     """None if the job is relevant, otherwise the reason it was filtered out."""
     kw = prefs.excluded_by(job.company, job.title, job.description)
     if kw:
         return f"excluded keyword: {kw}"
+    if prefs.needs_visa_sponsorship and NO_SPONSORSHIP.search(f"{job.title} {job.description}"):
+        return "no visa sponsorship"
     for word in prefs.exclude_title_words:
         if re.search(rf"\b{re.escape(word)}\b", job.title, re.I):
             return f"title too senior: {word}"

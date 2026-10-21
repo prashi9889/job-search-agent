@@ -111,3 +111,19 @@ and main cities. Listings shown only as "N Locations" are kept for review.
 Location filter removed (`preferences.locations = ["Anywhere"]`): jobs in any
 country are kept. NaukriGulf, Bayt, GulfTalent, Reed and Totaljobs alert
 emails are read the same way as the Indian job sites. This supersedes D9.
+
+## D11 — Automatic operation, visa filter, humanizer (2026-10-21)
+
+- **Automatic runs:** `install.ps1` (Windows) / `install.sh` (macOS, Linux)
+  set up the agent and register `jobagent run` with the OS scheduler (Task
+  Scheduler, launchd or cron) every 30 minutes. Each run finds new jobs and,
+  once Google is connected, updates the calendar from email.
+- **Visa:** the candidate holds Indian citizenship only and is open to any
+  country. `needs_visa_sponsorship = true` skips listings whose text says
+  they cannot sponsor or require existing right to work. Listings without
+  description text are kept.
+- **Humanizer:** `.claude/skills/resume-humanizer/SKILL.md` sets the writing
+  rules for every resume and cover letter; `jobagent humanize FILE` flags stock
+  AI phrasing, em dashes, long sentences and repeated openings. It cannot
+  guarantee a score on any particular AI detector.
+- **Applications** are still submitted only after explicit approval (DPR §3).

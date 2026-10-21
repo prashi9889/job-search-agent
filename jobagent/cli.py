@@ -1,4 +1,4 @@
-"""Command line: init, serve, privacy, profile, discover, connect, sync-email."""
+"""Command line: init, serve, privacy, profile, discover, run, schedule, humanize, connect, sync-email."""
 
 from __future__ import annotations
 
@@ -127,6 +127,41 @@ def cmd_discover(args) -> None:
         print(f"- {job['title']} | {job['company']} | {job['location']}\n  {job['url']}")
 
 
+def cmd_run(args) -> None:
+    """One automatic cycle: find new jobs, then update the calendar from email."""
+    from . import google
+
+    _audit().record("run.start", "scheduler")
+    try:
+        cmd_discover(argparse.Namespace(days=2, no_email=not google.is_connected(), show=0))
+    except SystemExit as exc:
+        print(exc)
+    if google.is_connected():
+        cmd_sync_email(argparse.Namespace(days=3, watch=None))
+
+
+def cmd_schedule(args) -> None:
+    from . import schedule
+
+    message = schedule.install(args.every) if args.action == "install" else schedule.remove()
+    _audit().record(f"schedule.{args.action}", "scheduler", {"minutes": args.every}, actor="user")
+    print(message)
+
+
+def cmd_humanize(args) -> None:
+    from .humanize import check, docx_text
+
+    text = docx_text(args.file) if args.file.lower().endswith(".docx") else open(args.file, encoding="utf-8").read()
+    findings = check(text)
+    if not findings:
+        print("No machine-sounding wording found.")
+        return
+    for f in findings:
+        where = f"line {f.line}" if f.line else "overall"
+        print(f"{where}: {f.kind}: '{f.text}' -> {f.suggestion}")
+    raise SystemExit(1)
+
+
 def cmd_serve(args) -> None:
     import uvicorn
 
@@ -169,6 +204,17 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--no-email", action="store_true", help="only check company portals")
     p.add_argument("--show", type=int, default=20, help="how many shortlisted jobs to print")
     p.set_defaults(func=cmd_discover)
+
+    sub.add_parser("run", help="one automatic cycle: discover jobs and sync email").set_defaults(func=cmd_run)
+
+    p = sub.add_parser("schedule", help="run the agent automatically in the background")
+    p.add_argument("action", choices=["install", "remove"])
+    p.add_argument("--every", type=int, default=30, metavar="MINUTES")
+    p.set_defaults(func=cmd_schedule)
+
+    p = sub.add_parser("humanize", help="flag machine-sounding wording in a resume or cover letter")
+    p.add_argument("file", help=".docx or text file")
+    p.set_defaults(func=cmd_humanize)
 
     p = sub.add_parser("serve", help="run the local dashboard")
     p.add_argument("--port", type=int, default=8765)

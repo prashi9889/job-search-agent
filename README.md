@@ -8,7 +8,27 @@ decisions made so far are in [docs/decisions.md](docs/decisions.md).
 automatic interview scheduling is built and waits for you to sign in to
 Google. Profile import is ready; the profile itself is never committed.
 
-## Setup
+## Install (one time)
+
+You need Python 3.11+ ([python.org/downloads](https://www.python.org/downloads/); on
+Windows tick "Add python.exe to PATH"). Then download this repository and run:
+
+- **Windows:** right-click the folder → *Open in Terminal*, then
+  `powershell -ExecutionPolicy Bypass -File install.ps1 C:\path\to\profile.json`
+- **macOS / Linux:** `bash install.sh ~/path/to/profile.json`
+
+This installs the agent, loads your profile and makes it run every 30 minutes
+in the background. Stop it with `jobagent schedule remove`.
+
+## Resume humanizer
+
+```bash
+jobagent humanize resume.docx   # flags stock AI phrasing, em dashes, long sentences
+```
+
+Writing rules are in `.claude/skills/resume-humanizer/SKILL.md`.
+
+## Manual setup
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
