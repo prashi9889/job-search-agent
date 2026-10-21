@@ -60,7 +60,7 @@ PLACES = {
     "india": r"india|\bind\b|mumbai|delhi|gurgaon|gurugram|noida|bengaluru|bangalore|hyderabad|chennai|pune|"
              r"kolkata|ahmedabad|kochi|jaipur|lucknow|chandigarh|thane|coimbatore|visakhapatnam|telangana|"
              r"maharashtra|karnataka|tamil nadu|haryana|uttar pradesh|gujarat|kerala|west bengal",
-    "united arab emirates": r"united arab emirates|\buae\b|\bare\b|dubai|abu dhabi|sharjah|ajman|ras al khaimah",
+    "united arab emirates": r"united arab emirates|\buae\b|(?-i:\bARE\b)|dubai|abu dhabi|sharjah|ajman|ras al khaimah",
     "qatar": r"qatar|\bqat\b|doha|lusail",
     "saudi arabia": r"saudi|\bksa\b|\bsau\b|riyadh|jeddah|dammam|khobar|neom|mecca|makkah|medina",
     "oman": r"\boman\b|\bomn\b|muscat|sohar|duqm",
