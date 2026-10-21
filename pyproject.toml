@@ -24,3 +24,6 @@ jobagent = "jobagent.cli:main"
 
 [tool.setuptools]
 packages = ["jobagent"]
+
+[tool.setuptools.package-data]
+jobagent = ["sources.json"]

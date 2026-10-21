@@ -1,0 +1,39 @@
+{
+  "_comment": "Company career portals. 'api' sources are queried directly; 'link' sources have no public feed and are shown on the dashboard as one-click searches. Verified 2026-10-21.",
+  "companies": [
+    {"name": "JLL", "type": "workday", "host": "jll.wd1.myworkdayjobs.com", "tenant": "jll", "site": "jllcareers"},
+    {"name": "Cushman & Wakefield", "type": "workday", "host": "cw.wd1.myworkdayjobs.com", "tenant": "cw", "site": "External"},
+    {"name": "KBR", "type": "workday", "host": "kbr.wd5.myworkdayjobs.com", "tenant": "kbr", "site": "KBR_Careers"},
+    {"name": "Parsons", "type": "workday", "host": "parsons.wd5.myworkdayjobs.com", "tenant": "parsons", "site": "Search"},
+    {"name": "Surbana Jurong", "type": "workday", "host": "surbanajurong.wd3.myworkdayjobs.com", "tenant": "surbanajurong", "site": "SJ_Careers"},
+    {"name": "Knight Frank", "type": "workday", "host": "knightfrank.wd103.myworkdayjobs.com", "tenant": "knightfrank", "site": "KF"},
+    {"name": "Cumming Group", "type": "workday", "host": "cumminggroup.wd1.myworkdayjobs.com", "tenant": "cumminggroup", "site": "CGC"},
+    {"name": "Amentum", "type": "workday", "host": "pae.wd1.myworkdayjobs.com", "tenant": "pae", "site": "Amentum_Careers"},
+    {"name": "Turner & Townsend", "type": "smartrecruiters", "company_id": "turnertownsend"},
+    {"name": "WSP", "type": "oracle", "host": "emit.fa.ca3.oraclecloud.com", "site": "CX_2001"},
+
+    {"name": "AECOM", "type": "link", "url": "https://aecom.jobs/career-area/survey-estimation/jobs/"},
+    {"name": "Jacobs", "type": "link", "url": "https://careers.jacobs.com/en_US/careers/FocusedSearchJobs?keyword={q}"},
+    {"name": "Arcadis", "type": "link", "url": "https://jobs.arcadis.com/careers?query={q}&location=India"},
+    {"name": "Larsen & Toubro", "type": "link", "url": "https://larsentoubrocareers.peoplestrong.com/"},
+    {"name": "Rider Levett Bucknall", "type": "link", "url": "https://www.rlb.com/asia/careers/"},
+    {"name": "CBRE", "type": "link", "url": "https://careers.cbre.com/en_US/careers/SearchJobs/{q}"},
+    {"name": "Colliers", "type": "link", "url": "https://www.colliers.com/en/careers"},
+    {"name": "Tata Projects", "type": "link", "url": "https://www.tataprojects.com/careers"},
+    {"name": "Shapoorji Pallonji", "type": "link", "url": "https://www.shapoorjipallonji.com/careers"},
+    {"name": "Afcons", "type": "link", "url": "https://www.afcons.com/en/careers"}
+  ],
+  "_alerts_comment": "Job sites without a public feed are read from their job-alert emails in Gmail (read-only). Set up alerts on each site with the keywords below.",
+  "job_alert_senders": {
+    "naukri": ["naukri.com"],
+    "linkedin": ["linkedin.com"],
+    "indeed": ["indeed.com", "indeedemail.com"],
+    "foundit": ["foundit.in", "monsterindia.com"]
+  },
+  "job_url_patterns": {
+    "naukri": "https?://(?:www\\.)?naukri\\.com/\\S*job-listings\\S*",
+    "linkedin": "https?://(?:[a-z]+\\.)?linkedin\\.com/(?:comm/)?jobs/view/\\d+\\S*",
+    "indeed": "https?://(?:[a-z]+\\.)?indeed\\.com/(?:rc/clk|viewjob|pagead/clk)\\S*",
+    "foundit": "https?://(?:www\\.)?(?:foundit\\.in|monsterindia\\.com)/job/\\S*"
+  }
+}

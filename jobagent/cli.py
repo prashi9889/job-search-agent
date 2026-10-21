@@ -1,4 +1,4 @@
-"""Command line: init, serve, privacy, profile, connect, sync-email."""
+"""Command line: init, serve, privacy, profile, discover, connect, sync-email."""
 
 from __future__ import annotations
 
@@ -102,6 +102,31 @@ def cmd_sync_email(args) -> None:
         time.sleep(args.watch * 60)
 
 
+def cmd_discover(args) -> None:
+    from .discovery import discover, load_sources
+    from .jobs import JobStore
+    from .profile import SearchPreferences, load_profile
+
+    profile = load_profile()
+    if profile is None:
+        raise SystemExit("Import your profile first: `jobagent profile import FILE`.")
+    audit = _audit()
+    emails = []
+    if not args.no_email:
+        from . import google
+        domains = [d for ds in load_sources()["job_alert_senders"].values() for d in ds]
+        try:
+            emails = google.GmailReader(google.credentials()).from_senders(domains, args.days)
+        except RuntimeError as exc:
+            print(f"Skipping job-alert emails: {exc}")
+    store = JobStore(data_dir() / "jobs.db")
+    results = discover(SearchPreferences.from_profile(profile), store, audit, emails)
+    print(f"New relevant jobs: {results['relevant']}  filtered out: {results['filtered']}  "
+          f"already known: {results['duplicate']}  portal errors: {results['errors']}")
+    for job in store.shortlist(args.show):
+        print(f"- {job['title']} | {job['company']} | {job['location']}\n  {job['url']}")
+
+
 def cmd_serve(args) -> None:
     import uvicorn
 
@@ -138,6 +163,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--days", type=int, default=3, help="how far back to look")
     p.add_argument("--watch", type=int, metavar="MINUTES", help="keep running, checking every MINUTES")
     p.set_defaults(func=cmd_sync_email)
+
+    p = sub.add_parser("discover", help="find new jobs on company portals and in job-alert emails")
+    p.add_argument("--days", type=int, default=7, help="how far back to read job-alert emails")
+    p.add_argument("--no-email", action="store_true", help="only check company portals")
+    p.add_argument("--show", type=int, default=20, help="how many shortlisted jobs to print")
+    p.set_defaults(func=cmd_discover)
 
     p = sub.add_parser("serve", help="run the local dashboard")
     p.add_argument("--port", type=int, default=8765)

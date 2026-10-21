@@ -73,3 +73,29 @@ with a link back to the email). Safeguards:
   otherwise. Exclusions are keyword-based (`preferences.exclude_keywords`),
   so construction jobs that merely mention e.g. aluminium formwork still count.
 - The profile lives in `~/.jobagent/profile.json` and is never committed.
+
+## D8 — Job sources (2026-10-21)
+
+**Job sites (Naukri, LinkedIn, Indeed, Foundit):** none offers a public feed,
+and their terms forbid scraping. The agent reads the **job-alert emails** they
+send, through the existing read-only Gmail access. You create the alerts once
+on each site (keywords: Quantity Surveyor, Billing Engineer, Estimation
+Engineer; location: India).
+
+**Company career portals (worldwide firms):** queried directly through the
+public feeds their careers sites already use:
+
+| Feed | Companies |
+|---|---|
+| Workday | JLL, Cushman & Wakefield, KBR, Parsons, Surbana Jurong, Knight Frank, Cumming Group, Amentum |
+| SmartRecruiters | Turner & Townsend (format checked live) |
+| Oracle Recruiting | WSP (format checked live) |
+| Link only (no public feed) | AECOM, Jacobs, Arcadis, L&T, RLB, CBRE, Colliers, Tata Projects, Shapoorji Pallonji, Afcons |
+
+Link-only sites are listed on the dashboard as one-click searches. The list is
+in `jobagent/sources.json` and can be extended.
+
+**Filtering:** QS-type titles only; UPVC/aluminium companies excluded;
+titles with Senior, Principal, Lead, Head, Director or Chief are skipped
+(`preferences.exclude_title_words`); location must match the profile
+(currently India). The same job found on several sources is stored once.

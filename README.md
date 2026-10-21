@@ -39,6 +39,18 @@ jobagent profile show
 Only facts in this file are used for matching and documents. Edit the file and
 import it again to correct anything.
 
+## Finding jobs
+
+```bash
+jobagent discover            # company portals + job-alert emails from the last 7 days
+jobagent discover --no-email # company portals only
+```
+
+New relevant jobs appear in the dashboard's **Job shortlist**. For Naukri,
+LinkedIn, Indeed and Foundit, create job alerts on each site (Quantity
+Surveyor / Billing Engineer / Estimation Engineer, India) sent to the Gmail
+account you connect. Company portals are listed in `jobagent/sources.json`.
+
 ## Connecting Google (Gmail + Calendar)
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a

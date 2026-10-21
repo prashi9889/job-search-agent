@@ -50,6 +50,8 @@ class SearchPreferences:
     locations: list[str] = field(default_factory=list)
     # Listings mentioning any of these (company, title or description) are skipped.
     exclude_keywords: list[str] = field(default_factory=list)
+    # Titles containing these words are too senior (or otherwise unsuitable).
+    exclude_title_words: list[str] = field(default_factory=list)
 
     @classmethod
     def from_profile(cls, profile: dict) -> "SearchPreferences":
@@ -58,6 +60,7 @@ class SearchPreferences:
             target_roles=prefs["target_roles"],
             locations=prefs.get("locations", []),
             exclude_keywords=prefs.get("exclude_keywords", []),
+            exclude_title_words=prefs.get("exclude_title_words", []),
         )
 
     def excluded_by(self, *texts: str) -> str | None:

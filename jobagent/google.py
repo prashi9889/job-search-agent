@@ -7,7 +7,9 @@ the data directory or the repository.
 from __future__ import annotations
 
 import base64
+import html
 import json
+import re
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
@@ -65,10 +67,23 @@ def disconnect() -> None:
     keyring.delete_password(KEYRING_SERVICE, KEYRING_USER)
 
 
-def _body_text(payload: dict) -> str:
-    if payload.get("mimeType") == "text/plain" and payload.get("body", {}).get("data"):
+def html_to_text(markup: str) -> str:
+    """Plain text with each link's address on its own line after the link text."""
+    markup = re.sub(r"(?is)<(script|style)\b.*?</\1>", "", markup)
+    markup = re.sub(r'(?is)<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', lambda m: f"{m.group(2)}\n{m.group(1)}\n", markup)
+    markup = re.sub(r"(?i)<br\s*/?>|</(?:p|div|tr|li|h\d|td)>", "\n", markup)
+    text = html.unescape(re.sub(r"<[^>]+>", "", markup))
+    return "\n".join(l.strip() for l in text.splitlines() if l.strip())
+
+
+def _parts(payload: dict, mime: str) -> str:
+    if payload.get("mimeType") == mime and payload.get("body", {}).get("data"):
         return base64.urlsafe_b64decode(payload["body"]["data"]).decode("utf-8", "replace")
-    return "\n".join(filter(None, (_body_text(p) for p in payload.get("parts", []))))
+    return "\n".join(filter(None, (_parts(p, mime) for p in payload.get("parts", []))))
+
+
+def _body_text(payload: dict) -> str:
+    return _parts(payload, "text/plain") or html_to_text(_parts(payload, "text/html"))
 
 
 class GmailReader:
@@ -77,9 +92,13 @@ class GmailReader:
         self._svc = build("gmail", "v1", credentials=creds, cache_discovery=False)
 
     def recent(self, days: int, limit: int = 200) -> list[EmailMessage]:
-        resp = self._svc.users().messages().list(
-            userId="me", q=f"newer_than:{days}d {JOB_QUERY}", maxResults=limit
-        ).execute()
+        return self.search(f"newer_than:{days}d {JOB_QUERY}", limit)
+
+    def from_senders(self, domains: list[str], days: int, limit: int = 200) -> list[EmailMessage]:
+        return self.search(f"newer_than:{days}d from:({' OR '.join(domains)})", limit)
+
+    def search(self, query: str, limit: int) -> list[EmailMessage]:
+        resp = self._svc.users().messages().list(userId="me", q=query, maxResults=limit).execute()
         return [self._get(m["id"]) for m in resp.get("messages", [])]
 
     def _get(self, message_id: str) -> EmailMessage:
