@@ -6,7 +6,7 @@ decisions made so far are in [docs/decisions.md](docs/decisions.md).
 
 **Status:** Phase 1 (setup and privacy) is in review. Gmail monitoring with
 automatic interview scheduling is built and waits for you to sign in to
-Google. No profile data is stored yet.
+Google. Profile import is ready; the profile itself is never committed.
 
 ## Setup
 
@@ -28,6 +28,16 @@ jobagent privacy --external-opt-in off
 
 Profile, email, draft and tracker data are always processed locally,
 whatever these settings say.
+
+## Your profile
+
+```bash
+jobagent profile import path/to/profile.json   # saved to ~/.jobagent/profile.json
+jobagent profile show
+```
+
+Only facts in this file are used for matching and documents. Edit the file and
+import it again to correct anything.
 
 ## Connecting Google (Gmail + Calendar)
 

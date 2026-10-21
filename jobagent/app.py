@@ -15,7 +15,7 @@ from .privacy import DataClass, route
 # Mirrors the phased plan in docs/DPR.md. Updated as phases are approved.
 PHASES = [
     ("1. Project setup and privacy choice", "In review"),
-    ("2. Profile and preferences", "Not started"),
+    ("2. Profile and preferences", "Built, awaiting profile import"),
     ("3. Tracker", "Not started"),
     ("4. Job discovery and matching", "Not started"),
     ("5. Tailored documents", "Not started"),

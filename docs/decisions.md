@@ -62,3 +62,14 @@ with a link back to the email). Safeguards:
 - If no time zone is stated, the email's own time zone is used; the event
   description asks you to check the time against the email.
 - Turn it off with `jobagent privacy --auto-calendar off`.
+
+## D7 — Job search focus (2026-10-21)
+
+- Target: Quantity Surveying roles anywhere in India (Quantity Surveyor,
+  Trainee/Junior QS, Billing Engineer, Estimation Engineer, QS Engineer).
+  Available immediately.
+- UPVC and aluminium experience stays on the resume, but UPVC/aluminium
+  window and door companies are **excluded** from the search until you ask
+  otherwise. Exclusions are keyword-based (`preferences.exclude_keywords`),
+  so construction jobs that merely mention e.g. aluminium formwork still count.
+- The profile lives in `~/.jobagent/profile.json` and is never committed.

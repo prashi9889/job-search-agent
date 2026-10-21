@@ -1,4 +1,4 @@
-"""Command line: init, serve, privacy, connect, sync-email."""
+"""Command line: init, serve, privacy, profile, connect, sync-email."""
 
 from __future__ import annotations
 
@@ -45,6 +45,25 @@ def cmd_privacy(args) -> None:
             "calendar.auto_changed", "calendar", {"from": before, "to": settings.auto_calendar}, actor="user"
         )
     print(json.dumps(settings.to_json(), indent=2))
+
+
+def cmd_profile(args) -> None:
+    from .profile import load_profile, profile_path, save_profile, validate
+
+    if args.action == "import":
+        with open(args.file, encoding="utf-8") as f:
+            profile = json.load(f)
+        problems = validate(profile)
+        if problems:
+            raise SystemExit("Profile not saved: " + "; ".join(problems))
+        save_profile(profile)
+        _audit().record("profile.imported", str(profile_path()), {"sections": sorted(profile)}, actor="user")
+        print(f"Profile saved to {profile_path()}")
+        return
+    profile = load_profile()
+    if profile is None:
+        raise SystemExit("No profile yet. Run `jobagent profile import FILE`.")
+    print(json.dumps(profile, indent=2, ensure_ascii=False))
 
 
 def cmd_connect(args) -> None:
@@ -104,6 +123,11 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--auto-calendar", choices=["on", "off"],
                    help="add interview and assessment dates from email to the calendar automatically")
     p.set_defaults(func=cmd_privacy)
+
+    p = sub.add_parser("profile", help="show or import your verified profile")
+    p.add_argument("action", choices=["show", "import"])
+    p.add_argument("file", nargs="?", help="profile JSON to import")
+    p.set_defaults(func=cmd_profile)
 
     p = sub.add_parser("connect", help="sign in to Google (Gmail read-only + Calendar)")
     p.add_argument("service", choices=["google"])
