@@ -127,3 +127,14 @@ emails are read the same way as the Indian job sites. This supersedes D9.
   AI phrasing, em dashes, long sentences and repeated openings. It cannot
   guarantee a score on any particular AI detector.
 - **Applications** are still submitted only after explicit approval (DPR §3).
+
+## D12 — Accept / Skip queue (2026-10-21)
+
+Each shortlisted job on the dashboard has **Accept** and **Skip** buttons.
+Accept records the approval in the audit history and opens the application
+page; **I applied** then moves the job to the Applied list with the date.
+Accept is refused if the same role at the same company (ignoring suffixes
+such as LLC or Consulting) is already accepted or applied. The buttons only
+work from the dashboard itself: requests must carry an `X-Jobagent` header,
+which other websites cannot send. Jobs found by hand can be added with
+`jobagent add-job`.

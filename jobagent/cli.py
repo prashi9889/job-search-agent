@@ -162,6 +162,19 @@ def cmd_humanize(args) -> None:
     raise SystemExit(1)
 
 
+def cmd_add_job(args) -> None:
+    from .jobs import Job, JobStore, relevance
+    from .profile import SearchPreferences, load_profile
+
+    job = Job("manual", args.company, args.title, args.location, args.url)
+    profile = load_profile()
+    reason = relevance(job, SearchPreferences.from_profile(profile)) if profile else None
+    added = JobStore(data_dir() / "jobs.db").add(job, None)
+    _audit().record("job.added_manually", job.url, {"title": job.title, "company": job.company}, actor="user")
+    note = f" (note: filters would have skipped it: {reason})" if reason else ""
+    print(("Added to the shortlist." if added else "Already in the list.") + note)
+
+
 def cmd_serve(args) -> None:
     import uvicorn
 
@@ -215,6 +228,13 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("humanize", help="flag machine-sounding wording in a resume or cover letter")
     p.add_argument("file", help=".docx or text file")
     p.set_defaults(func=cmd_humanize)
+
+    p = sub.add_parser("add-job", help="add a job you found yourself to the shortlist")
+    p.add_argument("--title", required=True)
+    p.add_argument("--company", required=True)
+    p.add_argument("--location", default="")
+    p.add_argument("--url", required=True)
+    p.set_defaults(func=cmd_add_job)
 
     p = sub.add_parser("serve", help="run the local dashboard")
     p.add_argument("--port", type=int, default=8765)

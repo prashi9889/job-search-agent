@@ -20,6 +20,16 @@ Windows tick "Add python.exe to PATH"). Then download this repository and run:
 This installs the agent, loads your profile and makes it run every 30 minutes
 in the background. Stop it with `jobagent schedule remove`.
 
+## Accepting jobs
+
+Open the dashboard (`jobagent serve`, then http://127.0.0.1:8765). Click
+**Accept** on a job to approve it and open its application page, **Skip** to
+hide it, and **I applied** after you submit. Add a job you found yourself:
+
+```bash
+jobagent add-job --title "Junior Quantity Surveyor" --company "D&A Consulting" --location "Dubai" --url "https://..."
+```
+
 ## Resume humanizer
 
 ```bash

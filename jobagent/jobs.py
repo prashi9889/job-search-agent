@@ -105,11 +105,37 @@ CREATE TABLE IF NOT EXISTS jobs (
 """
 
 
+_COMPANY_SUFFIXES = re.compile(
+    r"\b(?:consult(?:ing|ants?|ancy)?|llc|l l c|ltd|limited|pvt|private|inc|co|company|group|fze|fzco|plc)\b")
+
+
+def company_name(name: str) -> str:
+    """'D&A Consulting LLC' and 'D&A Consult' compare equal."""
+    s = re.sub(r"[^a-z0-9&]+", " ", name.lower())
+    return re.sub(r"\s+", " ", _COMPANY_SUFFIXES.sub(" ", s)).strip()
+
+
+# Columns added after the first release; created on existing databases too.
+EXTRA_COLUMNS = {"decided_at": "TEXT", "applied_at": "TEXT", "resume_version": "TEXT"}
+
+# What each button on the dashboard does to a job's stage.
+DECISIONS = {"accept": "approved", "skip": "skipped", "applied": "applied", "undo": "discovered"}
+OPEN_STAGES = ("discovered", "approved")
+
+
+class DuplicateApplication(Exception):
+    pass
+
+
 class JobStore:
     def __init__(self, path: Path):
         self._conn = sqlite3.connect(path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(SCHEMA)
+        have = {r["name"] for r in self._conn.execute("PRAGMA table_info(jobs)")}
+        for col, kind in EXTRA_COLUMNS.items():
+            if col not in have:
+                self._conn.execute(f"ALTER TABLE jobs ADD COLUMN {col} {kind}")
 
     def add(self, job: Job, filtered: str | None) -> bool:
         """Store a job; False if it was already known (from any source)."""
@@ -122,11 +148,46 @@ class JobStore:
             )
         return cur.rowcount == 1
 
-    def shortlist(self, limit: int = 100) -> list[dict]:
+    def shortlist(self, limit: int = 100, stages: tuple[str, ...] = OPEN_STAGES) -> list[dict]:
+        marks = ",".join("?" * len(stages))
         rows = self._conn.execute(
-            "SELECT * FROM jobs WHERE filtered IS NULL ORDER BY first_seen DESC LIMIT ?", (limit,)
+            f"SELECT rowid AS id, * FROM jobs WHERE filtered IS NULL AND stage IN ({marks})"
+            " ORDER BY first_seen DESC LIMIT ?", (*stages, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+    def get(self, job_id: int) -> dict | None:
+        row = self._conn.execute("SELECT rowid AS id, * FROM jobs WHERE rowid = ?", (job_id,)).fetchone()
+        return dict(row) if row else None
+
+    def already_applied(self, job: dict) -> dict | None:
+        """Another job at the same company with the same title that is approved or applied."""
+        norm = lambda s: re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()
+        for row in self._conn.execute(
+            "SELECT rowid AS id, * FROM jobs WHERE stage IN ('approved', 'applied') AND rowid != ?", (job["id"],)
+        ):
+            if company_name(row["company"]) == company_name(job["company"]) and norm(row["title"]) == norm(job["title"]):
+                return dict(row)
+        return None
+
+    def decide(self, job_id: int, decision: str, resume_version: str | None = None) -> dict:
+        job = self.get(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        stage = DECISIONS[decision]
+        if decision == "accept":
+            dup = self.already_applied(job)
+            if dup:
+                raise DuplicateApplication(f"Already {dup['stage']}: {dup['title']} at {dup['company']}")
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        with self._conn:
+            self._conn.execute(
+                "UPDATE jobs SET stage = ?, decided_at = ?,"
+                " applied_at = CASE WHEN ? = 'applied' THEN ? ELSE applied_at END,"
+                " resume_version = COALESCE(?, resume_version) WHERE rowid = ?",
+                (stage, now, stage, now, resume_version, job_id),
+            )
+        return self.get(job_id)
 
     def counts(self) -> dict:
         row = self._conn.execute(
