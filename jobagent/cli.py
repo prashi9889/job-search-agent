@@ -1,9 +1,10 @@
-"""Command line: `jobagent init`, `jobagent serve`, `jobagent privacy`."""
+"""Command line: init, serve, privacy, connect, sync-email."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import time
 
 from .audit import AuditLog
 from .config import data_dir, ensure_data_dir, load_settings, save_settings, settings_path
@@ -36,7 +37,50 @@ def cmd_privacy(args) -> None:
             {"from": before, "to": settings.external_ai_opt_in},
             actor="user",
         )
+    if args.auto_calendar is not None:
+        before = settings.auto_calendar
+        settings.auto_calendar = args.auto_calendar == "on"
+        save_settings(settings)
+        _audit().record(
+            "calendar.auto_changed", "calendar", {"from": before, "to": settings.auto_calendar}, actor="user"
+        )
     print(json.dumps(settings.to_json(), indent=2))
+
+
+def cmd_connect(args) -> None:
+    from . import google
+
+    if args.disconnect:
+        google.disconnect()
+        _audit().record("integration.disconnected", "google", actor="user")
+        print("Google disconnected.")
+        return
+    if not google.client_secret_path().exists():
+        raise SystemExit(
+            f"Put your Google OAuth client file at {google.client_secret_path()} first "
+            "(see README, 'Connecting Google')."
+        )
+    google.credentials(interactive=True)
+    _audit().record("integration.connected", "google", {"scopes": google.SCOPES}, actor="user")
+    print("Google connected: Gmail (read-only) and Calendar events.")
+
+
+def cmd_sync_email(args) -> None:
+    from . import google
+    from .sync import sync_email
+
+    audit = _audit()
+    while True:
+        settings = load_settings()
+        creds = google.credentials()
+        messages = google.GmailReader(creds).recent(args.days)
+        calendar = google.GoogleCalendar(creds, settings.calendar_id)
+        results = sync_email(messages, calendar, settings, audit)
+        audit.record("email.sync", "gmail", {"messages": len(messages), **results})
+        print(f"{time.strftime('%H:%M')} checked {len(messages)} emails: {dict(results)}")
+        if not args.watch:
+            return
+        time.sleep(args.watch * 60)
 
 
 def cmd_serve(args) -> None:
@@ -57,7 +101,19 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("privacy", help="show or change AI processing settings")
     p.add_argument("--external-opt-in", choices=["on", "off"],
                    help="allow public job-listing text to be sent to the external model")
+    p.add_argument("--auto-calendar", choices=["on", "off"],
+                   help="add interview and assessment dates from email to the calendar automatically")
     p.set_defaults(func=cmd_privacy)
+
+    p = sub.add_parser("connect", help="sign in to Google (Gmail read-only + Calendar)")
+    p.add_argument("service", choices=["google"])
+    p.add_argument("--disconnect", action="store_true")
+    p.set_defaults(func=cmd_connect)
+
+    p = sub.add_parser("sync-email", help="read recent job emails and update the calendar")
+    p.add_argument("--days", type=int, default=3, help="how far back to look")
+    p.add_argument("--watch", type=int, metavar="MINUTES", help="keep running, checking every MINUTES")
+    p.set_defaults(func=cmd_sync_email)
 
     p = sub.add_parser("serve", help="run the local dashboard")
     p.add_argument("--port", type=int, default=8765)

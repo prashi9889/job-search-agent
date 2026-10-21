@@ -30,6 +30,11 @@ class Settings:
     local_model: str = "llama3.1:8b"
     local_model_url: str = "http://127.0.0.1:11434"
     external_model: str = "claude-sonnet-5-5"
+    # Add interview and assessment dates found in email straight to the
+    # calendar. Dates without an explicit time are proposed for review instead.
+    auto_calendar: bool = True
+    calendar_id: str = "primary"
+    event_minutes: int = 60
 
     def to_json(self) -> dict:
         data = asdict(self)

@@ -77,8 +77,10 @@ Gmail, if authorized ─► Proposed email updates ─► Your review
 |---|---|---|
 | Running the agent | Your computer, `~/.jobagent` data directory | Done (Phase 1) |
 | Job tracking | A local Excel workbook you select | Permission to access that workbook |
-| Microsoft 365 | Optional later connection | Separate authorization and sign-in |
-| Gmail | Optional, read-only monitoring | Gmail authorization |
+| Microsoft 365 | Excel tracker / Outlook | Authorized (D5); built in Phase 3 |
+| Google Calendar | Interview and assessment dates added automatically (D6) | Authorized (D5) |
+| Browser | Application assistance (Phase 6); submission still needs your approval | Authorized (D5) |
+| Gmail | Read-only monitoring | Authorized (D5); sign in with `jobagent connect google` |
 | Job listings | Sources you select | Approval of sources and access method |
 | AI model | **Hybrid:** local model (Ollama) for all personal data; Claude API for public job-listing text only, after opt-in | `jobagent privacy --external-opt-in on` |
 
@@ -112,7 +114,7 @@ The system also records when a proposed update was reviewed or corrected, so the
 | **4. Job discovery and matching** | Approved listing sources, worldwide search, matching explanations | Review sample results and ranking |
 | **5. Tailored documents** | Resume and optional cover-letter drafts per role | Review claims and formatting |
 | **6. Application assistance** | Approval queue and duplicate check | Confirm no submission occurs without approval |
-| **7. Gmail monitoring** | Read-only email classification and proposed tracker updates | Review extracted messages and dates |
+| **7. Gmail monitoring** | Read-only email classification, automatic calendar events for interviews, proposed tracker updates | Review extracted messages and dates |
 | **8. Ongoing operation** | Reminders, sync monitoring, backups, corrections, and maintenance | Review errors and recurring workflow |
 
 ## 10. Completion criteria
@@ -139,5 +141,5 @@ The system is ready for regular use when you can verify that it:
 | Phase 1 project and dashboard | 100% | Built, awaiting your review |
 | Verified professional profile | 0% | Not provided |
 | Workbook selection and tracker approval | 0% | Not started |
-| Integrations | 0% | Not authorized |
-| Tests | — | 10 Phase 1 tests passing |
+| Integrations | 50% | Authorized; Gmail + Calendar built, awaiting sign-in |
+| Tests | — | 23 tests passing |

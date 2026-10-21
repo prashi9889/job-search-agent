@@ -7,7 +7,7 @@ from html import escape
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from . import __version__
+from . import __version__, google
 from .audit import AuditLog
 from .config import data_dir, ensure_data_dir, load_settings
 from .privacy import DataClass, route
@@ -20,7 +20,7 @@ PHASES = [
     ("4. Job discovery and matching", "Not started"),
     ("5. Tailored documents", "Not started"),
     ("6. Application assistance", "Not started"),
-    ("7. Gmail monitoring", "Not authorized"),
+    ("7. Gmail monitoring and calendar", "Built, awaiting Google sign-in"),
     ("8. Ongoing operation", "Not started"),
 ]
 
@@ -38,7 +38,15 @@ def create_app(audit: AuditLog | None = None) -> FastAPI:
             "settings": settings.to_json(),
             "routing": {dc.value: route(dc, settings).value for dc in DataClass},
             "phases": [{"phase": p, "status": s} for p, s in PHASES],
-            "integrations": {"gmail": "not connected", "microsoft365": "not connected", "job_sources": "none approved"},
+            "integrations": {
+                "gmail": "connected (read-only)" if google.is_connected() else "not connected",
+                "google_calendar": (
+                    ("connected, auto-add " + ("on" if settings.auto_calendar else "off"))
+                    if google.is_connected() else "not connected"
+                ),
+                "microsoft365": "authorized, not built yet",
+                "job_sources": "none approved",
+            },
         }
 
     @app.get("/api/status")

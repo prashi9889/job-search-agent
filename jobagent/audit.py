@@ -39,6 +39,12 @@ class AuditLog:
             )
         return cur.lastrowid
 
+    def has(self, action: str, subject: str) -> bool:
+        row = self._conn.execute(
+            "SELECT 1 FROM audit WHERE action = ? AND subject = ? LIMIT 1", (action, subject)
+        ).fetchone()
+        return row is not None
+
     def recent(self, limit: int = 50) -> list[dict]:
         rows = self._conn.execute(
             "SELECT * FROM audit ORDER BY id DESC LIMIT ?", (limit,)
