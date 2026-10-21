@@ -1,6 +1,7 @@
 # One-time setup for Windows (PowerShell):
 #   powershell -ExecutionPolicy Bypass -File install.ps1 [path\to\profile.json]
-param([string]$Profile = "")
+# ($PROFILE is a built-in PowerShell variable, so the parameter has another name.)
+param([string]$ProfileJson = "")
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
@@ -18,7 +19,8 @@ if ($LASTEXITCODE -ne 0) { Write-Host "Python 3.11 or newer is needed."; exit 1 
 & .\.venv\Scripts\python.exe -m pip install --quiet -e .
 & .\.venv\Scripts\jobagent.exe init
 
-if ($Profile -ne "") { & .\.venv\Scripts\jobagent.exe profile import $Profile }
+if ($ProfileJson -eq "" -and (Test-Path ".\profile.json")) { $ProfileJson = ".\profile.json" }
+if ($ProfileJson -ne "") { & .\.venv\Scripts\jobagent.exe profile import $ProfileJson }
 
 & .\.venv\Scripts\jobagent.exe schedule install --every 30
 Write-Host ""

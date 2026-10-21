@@ -11,3 +11,6 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+
+# Your personal profile, if copied next to the installer
+profile.json
